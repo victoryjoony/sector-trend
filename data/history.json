@@ -2,206 +2,235 @@
  "2026-10-23": {
   "ai": {
    "attn": 0.904,
-   "rank": 22,
+   "rank": 20,
    "rs1m": -0.0531,
+   "rs2w": -0.0454,
    "rs3m": -0.0692,
-   "score": 37
+   "score": 35
   },
   "air": {
    "attn": 0.787,
-   "rank": 25,
+   "rank": 23,
    "rs1m": -0.0735,
+   "rs2w": -0.0253,
    "rs3m": -0.1881,
-   "score": 29
+   "score": 31
   },
   "bio": {
    "attn": 1.096,
-   "rank": 8,
+   "rank": 12,
    "rs1m": -0.0323,
+   "rs2w": -0.0036,
    "rs3m": -0.0378,
-   "score": 67
+   "score": 62
   },
   "btc": {
    "attn": 0.706,
-   "rank": 10,
+   "rank": 13,
    "rs1m": -0.0293,
+   "rs2w": 0.0112,
    "rs3m": 0.2191,
-   "score": 65
+   "score": 58
   },
   "comm": {
    "attn": 0.825,
-   "rank": 16,
+   "rank": 19,
    "rs1m": -0.065,
+   "rs2w": -0.0202,
    "rs3m": -0.0475,
-   "score": 43
+   "score": 44
   },
   "copper": {
    "attn": 0.974,
-   "rank": 26,
+   "rank": 27,
    "rs1m": -0.1432,
+   "rs2w": -0.1237,
    "rs3m": -0.0926,
-   "score": 28
+   "score": 20
   },
   "cyber": {
    "attn": 0.877,
-   "rank": 2,
+   "rank": 6,
    "rs1m": 0.0378,
+   "rs2w": -0.0114,
    "rs3m": 0.1603,
-   "score": 83
+   "score": 72
   },
   "def": {
    "attn": 0.995,
-   "rank": 23,
+   "rank": 18,
    "rs1m": -0.0401,
+   "rs2w": 0.0025,
    "rs3m": -0.2007,
-   "score": 36
+   "score": 46
   },
   "disc": {
    "attn": 0.901,
-   "rank": 11,
+   "rank": 9,
    "rs1m": 0.0346,
+   "rs2w": 0.0261,
    "rs3m": -0.0082,
-   "score": 64
+   "score": 66
   },
   "energy": {
    "attn": 1.22,
    "rank": 1,
    "rs1m": 0.1169,
+   "rs2w": 0.0892,
    "rs3m": 0.1642,
-   "score": 94
+   "score": 95
   },
   "fin": {
    "attn": 1.042,
    "rank": 7,
    "rs1m": 0.0345,
+   "rs2w": 0.0453,
    "rs3m": -0.0446,
    "score": 71
   },
   "gold": {
    "attn": 0.851,
-   "rank": 21,
+   "rank": 22,
    "rs1m": -0.1222,
+   "rs2w": -0.0778,
    "rs3m": 0.0282,
-   "score": 39
+   "score": 31
   },
   "grid": {
    "attn": 0.966,
-   "rank": 24,
+   "rank": 21,
    "rs1m": -0.078,
+   "rs2w": -0.0768,
    "rs3m": -0.1071,
-   "score": 30
+   "score": 31
   },
   "health": {
    "attn": 0.932,
    "rank": 3,
    "rs1m": 0.0648,
+   "rs2w": 0.0735,
    "rs3m": 0.0706,
-   "score": 81
+   "score": 80
   },
   "home": {
    "attn": 0.968,
-   "rank": 19,
+   "rank": 15,
    "rs1m": 0.0257,
+   "rs2w": 0.062,
    "rs3m": -0.1252,
-   "score": 41
+   "score": 54
   },
   "ind": {
    "attn": 1.116,
-   "rank": 15,
+   "rank": 14,
    "rs1m": -0.0155,
+   "rs2w": -0.0035,
    "rs3m": -0.1298,
-   "score": 49
+   "score": 55
   },
   "infra": {
    "attn": 1.116,
    "rank": 17,
    "rs1m": -0.0183,
+   "rs2w": -0.0107,
    "rs3m": -0.1331,
-   "score": 42
+   "score": 48
   },
   "lith": {
    "attn": 0.964,
-   "rank": 27,
+   "rank": 29,
    "rs1m": -0.1089,
+   "rs2w": -0.1059,
    "rs3m": -0.1466,
-   "score": 19
+   "score": 17
   },
   "mat": {
    "attn": 1.018,
-   "rank": 6,
+   "rank": 5,
    "rs1m": 0.0422,
+   "rs2w": 0.0619,
    "rs3m": -0.0278,
-   "score": 72
+   "score": 77
   },
   "nuke": {
    "attn": 0.884,
-   "rank": 29,
+   "rank": 28,
    "rs1m": -0.1558,
+   "rs2w": -0.0992,
    "rs3m": -0.1848,
-   "score": 14
+   "score": 17
   },
   "quant": {
    "attn": 0.953,
-   "rank": 18,
+   "rank": 24,
    "rs1m": -0.0973,
+   "rs2w": -0.0804,
    "rs3m": -0.0606,
-   "score": 41
+   "score": 29
   },
   "rbank": {
    "attn": 0.968,
-   "rank": 13,
+   "rank": 8,
    "rs1m": 0.0308,
+   "rs2w": 0.0739,
    "rs3m": -0.0659,
-   "score": 64
+   "score": 71
   },
   "re": {
    "attn": 0.86,
-   "rank": 14,
+   "rank": 11,
    "rs1m": 0.0315,
+   "rs2w": 0.047,
    "rs3m": -0.0927,
-   "score": 52
+   "score": 63
   },
   "semi": {
    "attn": 1.012,
-   "rank": 20,
+   "rank": 25,
    "rs1m": -0.1127,
+   "rs2w": -0.1023,
    "rs3m": -0.0697,
-   "score": 40
+   "score": 28
   },
   "soft": {
    "attn": 0.859,
-   "rank": 5,
+   "rank": 10,
    "rs1m": 0.0415,
+   "rs2w": 0.0054,
    "rs3m": 0.1857,
-   "score": 76
+   "score": 64
   },
   "solar": {
    "attn": 0.842,
-   "rank": 28,
+   "rank": 26,
    "rs1m": -0.0458,
+   "rs2w": -0.0374,
    "rs3m": -0.2343,
-   "score": 17
+   "score": 25
   },
   "stap": {
    "attn": 0.901,
-   "rank": 4,
+   "rank": 2,
    "rs1m": 0.0897,
+   "rs2w": 0.0818,
    "rs3m": 0.01,
-   "score": 78
+   "score": 84
   },
   "tech": {
    "attn": 1.079,
-   "rank": 9,
+   "rank": 16,
    "rs1m": -0.0496,
+   "rs2w": -0.0543,
    "rs3m": 0.0217,
-   "score": 65
+   "score": 50
   },
   "util": {
    "attn": 0.955,
-   "rank": 12,
+   "rank": 4,
    "rs1m": 0.0907,
+   "rs2w": 0.0517,
    "rs3m": -0.0923,
-   "score": 64
+   "score": 78
   }
  }
 }

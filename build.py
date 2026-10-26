@@ -28,7 +28,7 @@ KST = timezone(timedelta(hours=9))
 UA = "sector-trend-dashboard/1.0 (https://github.com/victoryjoony/sector-trend)"
 WEEK = 5  # 거래일 기준 1주
 
-WEIGHTS = {"rs3m": 0.35, "rs1m": 0.30, "rs6m": 0.15, "vol": 0.10, "attn": 0.10}
+WEIGHTS = {"rs2w": 0.20, "rs1m": 0.35, "rs3m": 0.20, "vol": 0.15, "attn": 0.10}
 ATTN_HOT, VOL_HOT = 1.15, 1.15
 
 
@@ -124,6 +124,7 @@ def metrics(close, volume, wiki, at):
         hist = c.dropna().iloc[: len(c.dropna()) + at + 1]
         rows.append({
             "id": tid, "name": name, "etf": etf,
+            "rs2w": ret(c, 10, at) - ret(spy, 10, at),
             "rs1m": ret(c, 21, at) - ret(spy, 21, at),
             "rs3m": ret(c, 63, at) - ret(spy, 63, at),
             "rs6m": ret(c, 126, at) - ret(spy, 126, at),
@@ -140,13 +141,18 @@ def metrics(close, volume, wiki, at):
 
 
 def stage(r):
-    if r.rs1m > 0 and r.rs3m > 0:
-        return "주도", "lead"
-    if r.rs1m > 0:
-        return "떠오름", "rise"
+    """3개월(그동안)과 2주(지금)의 방향으로 나눈다."""
     if r.rs3m > 0:
-        return "식는 중", "cool"
-    return "소외", "lag"
+        return ("주도", "lead") if r.rs2w >= 0 else ("식는 중", "cool")
+    return ("떠오름", "rise") if r.rs2w > 0 else ("소외", "lag")
+
+
+def early_signals(df):
+    """가격보다 먼저 움직이는 경향이 있는 두 가지. 예측이 아니라 '지금 막 변하는 중'인 것."""
+    turn = df[(df.rs3m <= 0) & (df.rs2w > 0)].sort_values("rs2w", ascending=False).head(5)
+    buzz = df[((df.attn >= ATTN_HOT) | (df.vol >= VOL_HOT)) & (df.rs1m <= 0)]
+    buzz = buzz.assign(k=buzz.attn.fillna(1) + buzz.vol.fillna(1)).sort_values("k", ascending=False).head(5)
+    return turn, buzz
 
 
 # ---------- 렌더링 ----------
@@ -179,7 +185,7 @@ def sparkline(series, w=110, h=30):
 def dots(r):
     marks = [("관심", r.attn >= ATTN_HOT if not np.isnan(r.attn) else False),
              ("거래", r.vol >= VOL_HOT if not np.isnan(r.vol) else False),
-             ("가격", r.rs1m > 0 and r.rs3m > 0)]
+             ("가격", r.rs2w > 0 and r.rs1m > 0)]
     return "".join(f'<span class="dot{" on" if on else ""}">{lbl}</span>' for lbl, on in marks)
 
 
@@ -204,7 +210,19 @@ def render(today, prev, close, holdings, news, asof, built):
     riser = moved.index[0] if len(moved) and moved.iloc[0] > 0 else None
     faller = moved.index[-1] if len(moved) and moved.iloc[-1] < 0 else None
     all3 = [r for _, r in today.iterrows()
-            if (r.attn >= ATTN_HOT) and (r.vol >= VOL_HOT) and r.rs1m > 0 and r.rs3m > 0]
+            if (r.attn >= ATTN_HOT) and (r.vol >= VOL_HOT) and r.rs2w > 0 and r.rs1m > 0]
+
+    def early_list(rows, empty):
+        if rows.empty:
+            return f'<p class="sub">{empty}</p>'
+        lis = "".join(
+            f'<li><span class="nm">{e(r["name"])} <small>{e(r.etf)}</small></span>'
+            f'<span class="meta">3개월 <b class="{tone(r.rs3m)}">{pct(r.rs3m)}</b> → 2주 <b class="{tone(r.rs2w)}">{pct(r.rs2w)}</b>'
+            f' · 관심 {("–" if np.isnan(r.attn) else f"{r.attn:.2f}배")} · 거래 {r.vol:.2f}배</span></li>'
+            for _, r in rows.iterrows())
+        return f'<ul class="early">{lis}</ul>'
+
+    turn, buzz = early_signals(today)
 
     summary = [f"점수 상위: " + ", ".join(f"<b>{e(r['name'])}</b>({stage(r)[0]})" for _, r in top3.iterrows())]
     if all3:
@@ -233,9 +251,9 @@ def render(today, prev, close, holdings, news, asof, built):
   </div>
   <div class="row2">
     <div class="nums">
+      <div><label>2주</label><b class="{tone(r.rs2w)}">{pct(r.rs2w)}</b></div>
       <div><label>1개월</label><b class="{tone(r.rs1m)}">{pct(r.rs1m)}</b></div>
       <div><label>3개월</label><b class="{tone(r.rs3m)}">{pct(r.rs3m)}</b></div>
-      <div><label>6개월</label><b class="{tone(r.rs6m)}">{pct(r.rs6m)}</b></div>
     </div>
     {sparkline(rel)}
   </div>
@@ -328,6 +346,9 @@ summary small {{ color:var(--muted); font-weight:400; }}
 .news small {{ color:var(--muted); margin-left:6px; }}
 .how {{ font-size:13px; color:var(--muted); }}
 .how b {{ color:var(--text); }}
+.early {{ list-style:none; padding:0; margin:0 0 8px; }}
+.early li {{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin-bottom:6px; display:flex; flex-direction:column; gap:2px; }}
+.early b {{ font-variant-numeric:tabular-nums; }}
 </style>
 </head>
 <body>
@@ -342,7 +363,14 @@ summary small {{ color:var(--muted); font-weight:400; }}
 <span>나스닥100 1개월 <b class="{tone(qqq1m)}">{pct(qqq1m)}</b></span></div>
 </section>
 
-<h2>테마 순위</h2>
+<h2>막 움직이기 시작한 테마</h2>
+<div class="sub" style="margin:-6px 0 10px">가격보다 먼저 움직이는 경향이 있는 신호입니다. 앞으로 오른다는 뜻은 아니고, 헛신호도 많습니다.</div>
+<h3>방향 전환 — 3개월간 S&amp;P보다 약했는데 최근 2주는 강함</h3>
+{early_list(turn, "오늘은 해당 테마 없음")}
+<h3>관심·거래 먼저 — 조회수나 거래대금은 늘었는데 1개월 가격은 아직 S&amp;P 이하</h3>
+{early_list(buzz, "오늘은 해당 테마 없음")}
+
+<h2>지금 강한 테마 순위</h2>
 <div class="sub" style="margin:-6px 0 10px">숫자는 S&amp;P 500 대비 초과 수익률 · 선은 6개월 상대강도 · ▲▼는 1주 전 대비 순위</div>
 {''.join(cards)}
 
@@ -354,9 +382,9 @@ summary small {{ color:var(--muted); font-weight:400; }}
 
 <h2>읽는 법</h2>
 <div class="how">
-<p><b>단계</b> — 주도: 1·3개월 모두 S&amp;P보다 강함 / 떠오름: 최근 1개월만 강함 / 식는 중: 3개월은 강했지만 최근 1개월 약함 / 소외: 둘 다 약함.</p>
-<p><b>관심·거래·가격 표시</b> — 관심: 관련 위키백과 조회수가 최근 7일에 평소(그 전 8주)의 1.15배 이상 / 거래: 20일 거래대금이 120일 평균의 1.15배 이상 / 가격: 1·3개월 모두 S&amp;P 초과. 셋 다 켜지면 말·돈·가격이 같은 방향.</p>
-<p><b>점수</b> — 29개 테마 안에서의 백분위를 가중 평균(3개월 35%, 1개월 30%, 6개월 15%, 거래 10%, 관심 10%). 절대 기준이 아니라 상대 순위입니다.</p>
+<p><b>단계</b> — 3개월(그동안)과 2주(지금)를 S&amp;P와 비교. 주도: 둘 다 강함 / 떠오름: 3개월은 약했는데 2주는 강함 / 식는 중: 3개월은 강했는데 2주는 약함 / 소외: 둘 다 약함.</p>
+<p><b>관심·거래·가격 표시</b> — 관심: 관련 위키백과 조회수가 최근 7일에 평소(그 전 8주)의 1.15배 이상 / 거래: 20일 거래대금이 120일 평균의 1.15배 이상 / 가격: 2주·1개월 모두 S&amp;P 초과. 셋 다 켜지면 말·돈·가격이 같은 방향.</p>
+<p><b>점수</b> — 29개 테마 안에서의 백분위를 가중 평균(1개월 35%, 2주 20%, 3개월 20%, 거래 15%, 관심 10%). 최근 흐름을 빨리 잡도록 짧은 기간 비중을 높였고, 그만큼 순위가 자주 바뀌고 일시적 반등에도 흔들립니다. 절대 기준이 아니라 상대 순위입니다.</p>
 <p><b>빠진 것</b> — 실적 전망 변화와 ETF 자금 유입은 무료 데이터가 없어 넣지 않았습니다. 관심도는 영어 위키 조회수라 대략적인 신호입니다.</p>
 <p>지금 무엇이 주목받는지 보여주는 페이지일 뿐, 앞으로 오를 테마를 예측하거나 매매를 권하지 않습니다. 순위가 높을 때는 이미 많이 오른 뒤인 경우가 많습니다.</p>
 <p>데이터: Yahoo Finance(가격·보유 종목), Wikimedia(조회수), Google 뉴스.</p>
@@ -408,7 +436,8 @@ def main():
     hist_path.parent.mkdir(exist_ok=True)
     hist = json.loads(hist_path.read_text(encoding="utf-8")) if hist_path.exists() else {}
     hist[f"{asof:%Y-%m-%d}"] = {tid: {"rank": int(r["rank"]), "score": int(r.score),
-                                       "rs1m": round(float(r.rs1m), 4), "rs3m": round(float(r.rs3m), 4),
+                                       "rs2w": round(float(r.rs2w), 4), "rs1m": round(float(r.rs1m), 4),
+                                       "rs3m": round(float(r.rs3m), 4),
                                        "attn": None if np.isnan(r.attn) else round(float(r.attn), 3)}
                                  for tid, r in today.iterrows()}
     hist_path.write_text(json.dumps(hist, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
